@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fiji Campus Bus & Weather Dashboard</title>
+  
+  <!-- CSS Styling -->
+  <style>
+    /* Reset basic styling */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Base page styling */
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f0f4f8;
+      color: #333;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    /* Main Container Card */
+    .dashboard-card {
+      background-color: #ffffff;
+      width: 100%;
+      max-width: 480px;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+
+    /* Header styling with island blue theme */
+    .header {
+      background-color: #0077b6;
+      color: #ffffff;
+      padding: 24px 20px;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 1.5rem;
+      margin-bottom: 6px;
+    }
+
+    .header p {
+      font-size: 0.9rem;
+      opacity: 0.9;
+    }
+
+    /* Section padding */
+    .section {
+      padding: 20px;
+      border-bottom: 1px solid #eef2f5;
+    }
+
+    .section-title {
+      font-size: 1.1rem;
+      color: #0077b6;
+      margin-bottom: 12px;
+    }
+
+    /* Weather Box */
+    .weather-box {
+      background-color: #e0f2fe;
+      border-left: 4px solid #0284c7;
+      padding: 16px;
+      border-radius: 8px;
+    }
+
+    .weather-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .location-tag {
+      font-weight: 700;
+      color: #0369a1;
+      font-size: 1.05rem;
+    }
+
+    .temp-display {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: #0369a1;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .weather-emoji {
+      font-size: 2rem;
+    }
+
+    .weather-desc-text {
+      font-weight: 600;
+      color: #1e293b;
+      margin-bottom: 10px;
+    }
+
+    /* Weather Details Grid */
+    .weather-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      background-color: rgba(255, 255, 255, 0.6);
+      padding: 10px;
+      border-radius: 6px;
+      text-align: center;
+      font-size: 0.85rem;
+    }
+
+    .weather-stat-label {
+      color: #64748b;
+      font-size: 0.75rem;
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .weather-stat-val {
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    /* Notice Banner for Bus Rate */
+    .rate-notice {
+      background-color: #fef3c7;
+      border: 1px solid #f59e0b;
+      color: #78350f;
+      padding: 10px 12px;
+      border-radius: 6px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Input & Button Styling */
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    label {
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    input[type="number"] {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input[type="number"]:focus {
+      border-color: #0077b6;
+    }
+
+    button {
+      background-color: #0077b6;
+      color: #ffffff;
+      border: none;
+      padding: 12px;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    button:hover {
+      background-color: #005f92;
+    }
+
+    /* Result Box */
+    .result-box {
+      background-color: #f8fafc;
+      padding: 16px;
+      border-radius: 6px;
+      text-align: center;
+      font-weight: 500;
+      color: #1e293b;
+      min-height: 54px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .result-rides {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #0077b6;
+    }
+
+    .result-change {
+      font-size: 0.95rem;
+      color: #475569;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Dashboard Container -->
+  <div class="dashboard-card">
+    
+    <!-- Header -->
+    <header class="header">
+      <h1>Fiji Campus Dashboard</h1>
+      <p>Student Travel & Weather Tracker</p>
+    </header>
+
+    <!-- Weather Section -->
+    <section class="section">
+      <h2 class="section-title">Today's Weather</h2>
+      <div class="weather-box">
+        <div class="weather-header">
+          <span class="location-tag">📍 Location: Nadi, Fiji</span>
+          <div class="temp-display">
+            <span id="weather-emoji" class="weather-emoji">🌤️</span>
+            <span id="temperature">--°C</span>
+          </div>
+        </div>
+
+        <div id="weather-desc" class="weather-desc-text">Loading weather forecast...</div>
+
+        <!-- Detailed Weather Grid -->
+        <div class="weather-grid">
+          <div>
+            <span class="weather-stat-label">Humidity</span>
+            <span class="weather-stat-val" id="humidity">--%</span>
+          </div>
+          <div>
+            <span class="weather-stat-label">Wind Speed</span>
+            <span class="weather-stat-val" id="wind-speed">-- km/h</span>
+          </div>
+          <div>
+            <span class="weather-stat-label">Rain Chance</span>
+            <span class="weather-stat-val" id="rain-chance">--%</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Bus Fare Calculator Section -->
+    <section class="section">
+      <h2 class="section-title">Bus Fare Calculator</h2>
+      
+      <!-- Fare Rate Notice -->
+      <div class="rate-notice">
+        🚌 Notice: Standard student rate: $1.50 FJD per ride.
+      </div>
+
+      <div class="input-group">
+        <label for="budget">Enter your budget (FJD $):</label>
+        <input type="number" id="budget" placeholder="e.g. 15.00" min="0" step="0.50">
+        <button onclick="calculateRides()">Calculate Rides</button>
+      </div>
+      
+      <!-- Display Calculation Result -->
+      <div class="result-box" id="result">
+        <div>Enter an amount above to see your available rides and change.</div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- JavaScript Code -->
+  <script>
+    // Constant for standard student bus fare in FJD
+    const FARE_PER_RIDE = 1.50;
+
+    /**
+     * Calculates the number of bus rides affordable with the given budget and remaining change.
+     */
+    function calculateRides() {
+      const budgetInput = document.getElementById('budget').value;
+      const resultBox = document.getElementById('result');
+      
+      const budget = parseFloat(budgetInput);
+
+      // Validation check: Check if input is empty, invalid NaN, or negative
+      if (budgetInput.trim() === '' || isNaN(budget) || budget < 0) {
+        resultBox.innerHTML = `<span style="color: #d9534f; font-weight: 600;">Please enter a valid positive dollar amount</span>`;
+        return;
+      }
+
+      // Calculate total full rides affordable (rounded down)
+      const totalRides = Math.floor(budget / FARE_PER_RIDE);
+      
+      // Calculate remaining change accurately using two decimal precision
+      const remainingBalance = (budget - (totalRides * FARE_PER_RIDE)).toFixed(2);
+
+      // Display formatted ride count and remaining change
+      resultBox.innerHTML = `
+        <div class="result-rides">🚌 You can afford <strong>${totalRides}</strong> bus ride(s)</div>
+        <div class="result-change">💵 Remaining Change: <strong>$${remainingBalance} FJD</strong></div>
+      `;
+    }
+
+    /**
+     * Fetches real-time weather data for Nadi, Fiji using the Open-Meteo API.
+     */
+    async function fetchNadiWeather() {
+      // Coordinates for Nadi, Fiji
+      const latitude = -17.8000;
+      const longitude = 177.4167;
+
+      // API URL requesting current weather, wind speed, relative humidity, and precipitation probability
+      const apiUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&hourly=precipitation_probability&forecast_days=1`;
+
+      try {
+        const response = await fetch(apiUrl);
+        if (!response.ok) throw new Error("Weather service offline");
+
+        const data = await response.json();
+        
+        // Current weather properties
+        const current = data.current;
+        const temp = Math.round(current.temperature_2m);
+        const code = current.weather_code;
+        const humidity = current.relative_humidity_2m;
+        const windSpeed = Math.round(current.wind_speed_10m);
+
+        // Get max rain chance for today from hourly probability data
+        const maxRainChance = data.hourly && data.hourly.precipitation_probability 
+          ? Math.max(...data.hourly.precipitation_probability.slice(0, 24)) 
+          : 20;
+
+        // Map condition and emoji
+        const weatherInfo = getWeatherInfo(code);
+
+        // Update DOM elements
+        document.getElementById('temperature').textContent = `${temp}°C`;
+        document.getElementById('weather-emoji').textContent = weatherInfo.emoji;
+        document.getElementById('weather-desc').textContent = weatherInfo.description;
+        document.getElementById('humidity').textContent = `${humidity}%`;
+        document.getElementById('wind-speed').textContent = `${windSpeed} km/h`;
+        document.getElementById('rain-chance').textContent = `${maxRainChance}%`;
+
+      } catch (error) {
+        console.error("Error fetching weather data:", error);
+        // Fallback display if API call fails
+        document.getElementById('weather-emoji').textContent = "⛅";
+        document.getElementById('weather-desc').textContent = "Partly Cloudy (Offline Mode)";
+        document.getElementById('temperature').textContent = "30°C";
+        document.getElementById('humidity').textContent = "72%";
+        document.getElementById('wind-speed').textContent = "15 km/h";
+        document.getElementById('rain-chance').textContent = "30%";
+      }
+    }
+
+    /**
+     * Maps WMO weather codes from Open-Meteo to readable descriptions and emojis.
+     */
+    function getWeatherInfo(code) {
+      if (code === 0) return { description: "Clear Sky / Sunny", emoji: "☀️" };
+      if (code >= 1 && code <= 3) return { description: "Partly Cloudy", emoji: "⛅" };
+      if (code >= 45 && code <= 48) return { description: "Foggy / Hazy", emoji: "🌫️" };
+      if (code >= 51 && code <= 67) return { description: "Light Rain / Drizzle", emoji: "🌧️" };
+      if (code >= 80 && code <= 82) return { description: "Tropical Rain Showers", emoji: "🌦️" };
+      if (code >= 95) return { description: "Thunderstorm", emoji: "⛈️" };
+      return { description: "Partly Cloudy", emoji: "⛅" }; // Default fallback
+    }
+
+    // Initialize weather fetch when the page loads
+    window.onload = fetchNadiWeather;
+  </script>
+
+</body>
+</html>
